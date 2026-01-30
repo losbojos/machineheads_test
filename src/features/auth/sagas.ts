@@ -1,22 +1,29 @@
 import { call, put, takeLatest } from 'redux-saga/effects'
+import { push } from 'connected-react-router'
 
+import { login, SystemError, ValidationError, type TokenResponse } from '../../api/auth'
+import { saveTokensToCookies } from '../../utils/tokenCookies'
 import { LOGIN_REQUEST, loginFailure, loginSuccess, type LoginRequestAction } from './actions'
 
-// временный заглушечный API-вызыватель; позже заменим на реальный запрос к бекенду
-function fakeLoginApi(_email: string, _password: string): Promise<void> {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(), 500)
-  })
-}
-
-function* handleLogin(action: LoginRequestAction) {
+function* handleLogin(action: LoginRequestAction): Generator {
   try {
-    const { email, password } = action.payload
-    // TODO: заменить fakeLoginApi на реальный запрос к REST API с cookies
-    yield call(fakeLoginApi, email, password)
+    const tokens = (yield call(login, action.payload)) as TokenResponse
+
+    yield call(saveTokensToCookies, tokens)
     yield put(loginSuccess())
-    // сюда позже добавим редирект на /posts
+    yield put(push('/posts'))
   } catch (error) {
+    if (error instanceof ValidationError) {
+      const message = error.items.map((item) => `${item.field}: ${item.message}`).join(', ')
+      yield put(loginFailure(message))
+      return
+    }
+
+    if (error instanceof SystemError) {
+      yield put(loginFailure(error.message || 'System error'))
+      return
+    }
+
     const message = error instanceof Error ? error.message : 'Unknown error'
     yield put(loginFailure(message))
   }
