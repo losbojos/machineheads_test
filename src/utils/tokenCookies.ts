@@ -11,6 +11,24 @@ function setCookie(name: string, value: string, maxAgeSeconds?: number) {
   document.cookie = cookie
 }
 
+function getCookie(name: string): string | null {
+  if (typeof document === 'undefined') {
+    return null
+  }
+
+  const encodedName = `${encodeURIComponent(name)}=`
+  const parts = document.cookie.split(';')
+
+  for (const rawPart of parts) {
+    const part = rawPart.trim()
+    if (part.startsWith(encodedName)) {
+      return decodeURIComponent(part.substring(encodedName.length))
+    }
+  }
+
+  return null
+}
+
 export function saveTokensToCookies(tokens: TokenResponse) {
   // Для простоты считаем, что *_expired_at — это UNIX timestamp в секундах.
   const nowSeconds = Math.floor(Date.now() / 1000)
@@ -27,3 +45,10 @@ export function clearTokensFromCookies() {
   setCookie(REFRESH_TOKEN_COOKIE, '', 0)
 }
 
+export function getAccessTokenFromCookies(): string | null {
+  return getCookie(ACCESS_TOKEN_COOKIE)
+}
+
+export function getRefreshTokenFromCookies(): string | null {
+  return getCookie(REFRESH_TOKEN_COOKIE)
+}

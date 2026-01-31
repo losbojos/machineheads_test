@@ -1,6 +1,8 @@
 import type { LoginCredentials } from '../features/auth/types'
 
-const API_BASE_URL = 'http://rest-test.machineheads.ru'
+// Для dev-запросов используем относительный путь и Vite proxy,
+// чтобы обойти CORS при обращении к реальному backend.
+export const API_BASE_URL = '/api'
 
 export interface TokenResponse {
   access_token: string
@@ -45,9 +47,9 @@ export async function login(credentials: LoginCredentials): Promise<TokenRespons
   formData.append('email', credentials.email)
   formData.append('password', credentials.password)
 
-  const response = await fetch(`${API_BASE_URL}/auth/token-generate`, {
+  const response = await fetch(`${API_BASE_URL}/auth/token-generate/`, {
     method: 'POST',
-    body: formData,
+    body: formData
   })
 
   const json = await response.json()
@@ -63,3 +65,20 @@ export async function login(credentials: LoginCredentials): Promise<TokenRespons
   throw new SystemError(json as SystemErrorResponse)
 }
 
+export async function refreshToken(refreshTokenValue: string): Promise<TokenResponse> {
+  const formData = new FormData()
+  formData.append('refresh_token', refreshTokenValue)
+
+  const response = await fetch(`${API_BASE_URL}/auth/token-refresh/`, {
+    method: 'POST',
+    body: formData,
+  })
+
+  const json = await response.json()
+
+  if (response.ok) {
+    return json as TokenResponse
+  }
+
+  throw new SystemError(json as SystemErrorResponse)
+}
