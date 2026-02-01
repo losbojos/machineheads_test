@@ -53,31 +53,35 @@ export function AuthorsPage() {
       <Header
         style={{
           display: 'flex',
+          flexWrap: 'wrap',
           alignItems: 'center',
           justifyContent: 'space-between',
+          gap: 8,
           background: '#001529',
-          padding: '0 24px',
+          padding: '12px 16px',
+          minHeight: 64,
+          height: 'auto',
         }}
       >
-        <Space>
+        <Space size="middle" wrap>
           <Link to="/posts">
-            <Text style={{ color: '#fff', fontSize: 16 }}>Посты</Text>
+            <Text style={{ color: 'rgba(255,255,255,0.65)', fontSize: 16 }}>Посты</Text>
           </Link>
-          <Text style={{ color: '#fff', fontSize: 18 }}>Авторы</Text>
+          <Text style={{ color: '#69c0ff', fontSize: 18, fontWeight: 600 }}>Авторы</Text>
         </Space>
-        <Space>
+        <Space size="small" wrap>
           <Link to="/authors/add">
-            <Button type="primary" icon={<PlusOutlined />}>
-              Добавить автора
+            <Button type="primary" icon={<PlusOutlined />} size="small">
+              Добавить
             </Button>
           </Link>
-          <Button icon={<LogoutOutlined />} onClick={handleLogout}>
+          <Button icon={<LogoutOutlined />} onClick={handleLogout} size="small">
             Выйти
           </Button>
         </Space>
       </Header>
 
-      <Content style={{ padding: 24, maxWidth: 900, margin: '0 auto', width: '100%' }}>
+      <Content style={{ padding: '16px 24px', maxWidth: 900, margin: '0 auto', width: '100%' }}>
         {status === 'loading' && (
           <Card loading style={{ minHeight: 200 }} />
         )}

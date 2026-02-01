@@ -62,31 +62,35 @@ export function PostsPage() {
       <Header
         style={{
           display: 'flex',
+          flexWrap: 'wrap',
           alignItems: 'center',
           justifyContent: 'space-between',
+          gap: 8,
           background: '#001529',
-          padding: '0 24px',
+          padding: '12px 16px',
+          minHeight: 64,
+          height: 'auto',
         }}
       >
-        <Space>
-          <Text style={{ color: '#fff', fontSize: 18 }}>Посты</Text>
+        <Space size="middle" wrap>
+          <Text style={{ color: '#69c0ff', fontSize: 18, fontWeight: 600 }}>Посты</Text>
           <Link to="/authors">
-            <Text style={{ color: 'rgba(255,255,255,0.85)', fontSize: 16 }}>Авторы</Text>
+            <Text style={{ color: 'rgba(255,255,255,0.65)', fontSize: 16 }}>Авторы</Text>
           </Link>
         </Space>
-        <Space>
+        <Space size="small" wrap>
           <Link to="/posts/add">
-            <Button type="primary" icon={<PlusOutlined />}>
-              Добавить пост
+            <Button type="primary" icon={<PlusOutlined />} size="small">
+              Добавить
             </Button>
           </Link>
-          <Button icon={<LogoutOutlined />} onClick={handleLogout}>
+          <Button icon={<LogoutOutlined />} onClick={handleLogout} size="small">
             Выйти
           </Button>
         </Space>
       </Header>
 
-      <Content style={{ padding: 24, maxWidth: 900, margin: '0 auto', width: '100%' }}>
+      <Content style={{ padding: '16px 24px', maxWidth: 900, margin: '0 auto', width: '100%' }}>
         {status === 'loading' && (
           <Card loading style={{ minHeight: 200 }} />
         )}
