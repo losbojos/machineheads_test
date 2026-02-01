@@ -68,10 +68,15 @@ export function EditTagPage() {
 
   const handleSubmit = () => {
     if (Number.isNaN(tagId)) return
+    const trimmedCode = code.trim()
+    if (!trimmedCode) {
+      message.warning('Поле «Код» обязательно для заполнения')
+      return
+    }
     dispatch(
       tagUpdate(tagId, {
         name,
-        code,
+        code: trimmedCode,
         sort,
       }),
     )

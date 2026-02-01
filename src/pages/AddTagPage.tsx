@@ -35,10 +35,15 @@ export function AddTagPage() {
   }, [createError])
 
   const handleSubmit = () => {
+    const trimmedCode = code.trim()
+    if (!trimmedCode) {
+      message.warning('Поле «Код» обязательно для заполнения')
+      return
+    }
     dispatch(
       tagCreate({
         name,
-        code,
+        code: trimmedCode,
         sort,
       }),
     )
