@@ -6,6 +6,8 @@ const POST_PATHS_FOLLOW_REDIRECTS = [
   '/api/auth/token-refresh/', '/api/auth/token-refresh',
   '/api/manage/posts/add/', '/api/manage/posts/add',
   '/api/manage/posts/edit/', '/api/manage/posts/edit',
+  '/api/manage/authors/add/', '/api/manage/authors/add',
+  '/api/manage/authors/edit/', '/api/manage/authors/edit',
 ]
 
 /**

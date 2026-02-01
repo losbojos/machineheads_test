@@ -1,4 +1,37 @@
-import { API_BASE_URL, SystemError, type SystemErrorResponse, type TokenResponse, refreshToken } from './auth'
+import { API_BASE_URL, SystemError, ValidationError, type SystemErrorResponse, type ValidationErrorItem, type TokenResponse, refreshToken } from './auth'
+
+function parseValidationErrors(json: unknown): ValidationErrorItem[] {
+  if (Array.isArray(json)) {
+    return json
+      .filter((x): x is { field?: string; message?: string } => x && typeof x === 'object')
+      .map((x) => ({ field: String(x.field ?? 'unknown'), message: String(x.message ?? 'Ошибка') }))
+  }
+  if (json && typeof json === 'object') {
+    const obj = json as Record<string, unknown>
+    if (obj.detail && Array.isArray(obj.detail)) {
+      return (obj.detail as Array<{ loc?: string[]; msg?: string }>).map((d) => ({
+        field: Array.isArray(d.loc) ? String(d.loc[d.loc.length - 1] ?? 'unknown') : 'unknown',
+        message: String(d.msg ?? 'Ошибка'),
+      }))
+    }
+    if (obj.errors && typeof obj.errors === 'object') {
+      const errs = obj.errors as Record<string, string[]>
+      return Object.entries(errs).flatMap(([field, msgs]) =>
+        (Array.isArray(msgs) ? msgs : [msgs]).map((msg) => ({
+          field,
+          message: String(msg),
+        })),
+      )
+    }
+    if ('field' in obj && 'message' in obj) {
+      return [{ field: String(obj.field), message: String(obj.message) }]
+    }
+    if ('message' in obj) {
+      return [{ field: 'form', message: String(obj.message) }]
+    }
+  }
+  return [{ field: 'unknown', message: 'Ошибка валидации' }]
+}
 import {
   clearTokensFromCookies,
   getAccessTokenFromCookies,
@@ -29,6 +62,10 @@ async function doFetch(input: RequestInfo, init?: RequestInit) {
       status: response.status,
       type: 'unknown',
     })
+  }
+
+  if (response.status === 422) {
+    throw new ValidationError(parseValidationErrors(json))
   }
 
   throw new SystemError(json as SystemErrorResponse)

@@ -68,7 +68,12 @@ export function PostsPage() {
           padding: '0 24px',
         }}
       >
-        <Text style={{ color: '#fff', fontSize: 18 }}>Посты</Text>
+        <Space>
+          <Text style={{ color: '#fff', fontSize: 18 }}>Посты</Text>
+          <Link to="/authors">
+            <Text style={{ color: 'rgba(255,255,255,0.85)', fontSize: 16 }}>Авторы</Text>
+          </Link>
+        </Space>
         <Space>
           <Link to="/posts/add">
             <Button type="primary" icon={<PlusOutlined />}>

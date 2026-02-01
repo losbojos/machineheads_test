@@ -45,7 +45,8 @@ function* handlePostCreate(action: PostCreateAction): Generator {
     yield put(push('/posts'))
   } catch (error) {
     if (error instanceof ValidationError) {
-      yield put(postCreateFailure('Ошибка валидации', error.items))
+      const msg = error.items[0]?.message ?? 'Ошибка валидации'
+      yield put(postCreateFailure(msg, error.items))
       return
     }
     const message =

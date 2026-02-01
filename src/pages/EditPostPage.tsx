@@ -98,8 +98,7 @@ export function EditPostPage() {
     setTagIds(checkedIds)
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = () => {
     if (authorId === '' || Number.isNaN(postId)) return
     dispatch(
       postUpdate(postId, {

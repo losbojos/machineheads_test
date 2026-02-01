@@ -66,8 +66,7 @@ export function AddPostPage() {
     setTagIds(checkedIds)
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = () => {
     if (authorId === '') return
     dispatch(
       postCreate({
@@ -105,7 +104,6 @@ export function AddPostPage() {
             {tagsError && <Text type="warning">{tagsError}</Text>}
           </div>
         )}
-
         <Form layout="vertical" onFinish={handleSubmit}>
           <Form.Item
             label="Код (code)"
