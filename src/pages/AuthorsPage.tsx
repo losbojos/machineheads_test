@@ -110,9 +110,7 @@ export function AuthorsPage() {
                 key={author.id}
                 actions={[
                   <Link key="edit" to={`/authors/edit/${author.id}`}>
-                    <Button type="link" icon={<EditOutlined />} size="small">
-                      Редактировать
-                    </Button>
+                    <Button type="link" icon={<EditOutlined />} size="small" title="Редактировать" />
                   </Link>,
                   <Button
                     key="delete"
@@ -120,10 +118,9 @@ export function AuthorsPage() {
                     danger
                     icon={<DeleteOutlined />}
                     size="small"
+                    title="Удалить"
                     onClick={() => handleDelete(author)}
-                  >
-                    Удалить
-                  </Button>,
+                  />,
                 ]}
               >
                 <List.Item.Meta

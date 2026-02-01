@@ -120,9 +120,7 @@ export function PostsPage() {
                   key={post.id}
                   actions={[
                     <Link key="edit" to={`/posts/edit/${post.id}`}>
-                      <Button type="link" icon={<EditOutlined />} size="small">
-                        Редактировать
-                      </Button>
+                      <Button type="link" icon={<EditOutlined />} size="small" title="Редактировать" />
                     </Link>,
                     <Button
                       key="delete"
@@ -130,10 +128,9 @@ export function PostsPage() {
                       danger
                       icon={<DeleteOutlined />}
                       size="small"
+                      title="Удалить"
                       onClick={() => handleDelete(post)}
-                    >
-                      Удалить
-                    </Button>,
+                    />,
                   ]}
                 >
                   <List.Item.Meta

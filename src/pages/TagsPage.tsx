@@ -105,9 +105,7 @@ export function TagsPage() {
                 key={tag.id}
                 actions={[
                   <Link key="edit" to={`/tags/edit/${tag.id}`}>
-                    <Button type="link" icon={<EditOutlined />} size="small">
-                      Редактировать
-                    </Button>
+                    <Button type="link" icon={<EditOutlined />} size="small" title="Редактировать" />
                   </Link>,
                   <Button
                     key="delete"
@@ -115,10 +113,9 @@ export function TagsPage() {
                     danger
                     icon={<DeleteOutlined />}
                     size="small"
+                    title="Удалить"
                     onClick={() => handleDelete(tag)}
-                  >
-                    Удалить
-                  </Button>,
+                  />,
                 ]}
               >
                 <List.Item.Meta
@@ -128,11 +125,9 @@ export function TagsPage() {
                     </Link>
                   }
                   description={
-                    <Space>
+                    <Space wrap size={[12, 4]}>
                       <Text type="secondary">код: {tag.code}</Text>
-                      <Text type="secondary">·</Text>
                       <Text type="secondary">сорт: {tag.sort}</Text>
-                      <Text type="secondary">·</Text>
                       <Text type="secondary">обновлён: {formatDate(tag.updatedAt)}</Text>
                     </Space>
                   }
