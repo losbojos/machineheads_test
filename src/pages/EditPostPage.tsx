@@ -236,7 +236,9 @@ export function EditPostPage() {
               <Checkbox.Group
                 value={tagIds}
                 onChange={handleTagChange as (v: unknown) => void}
-                options={tags.map((t) => ({ label: t.name, value: t.id }))}
+                options={[...tags]
+                  .sort((a, b) => a.sort - b.sort)
+                  .map((t) => ({ label: t.name, value: t.id }))}
               />
             </Form.Item>
 
