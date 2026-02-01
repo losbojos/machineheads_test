@@ -2,8 +2,8 @@ import { call, put, takeLatest } from 'redux-saga/effects'
 import { push } from 'connected-react-router'
 
 import { login, SystemError, ValidationError, type TokenResponse } from '../../api/auth'
-import { saveTokensToCookies } from '../../utils/tokenCookies'
-import { LOGIN_REQUEST, loginFailure, loginSuccess, type LoginRequestAction } from './actions'
+import { clearTokensFromCookies, saveTokensToCookies } from '../../utils/tokenCookies'
+import { LOGIN_REQUEST, LOGOUT, loginFailure, loginSuccess, type LoginRequestAction } from './actions'
 
 function* handleLogin(action: LoginRequestAction): Generator {
   try {
@@ -29,7 +29,13 @@ function* handleLogin(action: LoginRequestAction): Generator {
   }
 }
 
+function* handleLogout(): Generator<unknown> {
+  yield call(clearTokensFromCookies)
+  yield put(push('/login'))
+}
+
 export function* authSaga() {
   yield takeLatest(LOGIN_REQUEST, handleLogin)
+  yield takeLatest(LOGOUT, handleLogout)
 }
 
