@@ -1,7 +1,12 @@
 import type { Plugin } from 'vite'
 
 const API_BASE = 'https://rest-test.machineheads.ru'
-const AUTH_PATHS = ['/api/auth/token-generate/', '/api/auth/token-generate', '/api/auth/token-refresh/', '/api/auth/token-refresh']
+const POST_PATHS_FOLLOW_REDIRECTS = [
+  '/api/auth/token-generate/', '/api/auth/token-generate',
+  '/api/auth/token-refresh/', '/api/auth/token-refresh',
+  '/api/manage/posts/add/', '/api/manage/posts/add',
+  '/api/manage/posts/edit/', '/api/manage/posts/edit',
+]
 
 /**
  * Прокси для auth-эндпоинтов, который следует редиректам с сохранением метода POST.
@@ -13,7 +18,7 @@ export function authProxyPlugin(): Plugin {
     configureServer(server) {
       const authHandler = async (req: any, res: any, next: () => void) => {
         const path = req.url?.split('?')[0] ?? ''
-        if (req.method !== 'POST' || !AUTH_PATHS.includes(path)) {
+        if (req.method !== 'POST' || !POST_PATHS_FOLLOW_REDIRECTS.includes(path)) {
           return next()
         }
 
@@ -32,8 +37,8 @@ export function authProxyPlugin(): Plugin {
 
           const headers: Record<string, string> = {}
           for (const [key, value] of Object.entries(req.headers)) {
-            if (value !== undefined && !['host', 'connection'].includes(key.toLowerCase())) {
-              headers[key] = Array.isArray(value) ? value.join(', ') : value
+            if (value != null && !['host', 'connection'].includes(key.toLowerCase())) {
+              headers[key] = Array.isArray(value) ? value.join(', ') : String(value)
             }
           }
 

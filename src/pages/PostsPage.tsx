@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Link, useLocation } from 'react-router-dom'
 
 import type { RootState } from '../app/rootReducer'
-import { postsFetch } from '../features/posts/actions'
+import { postsFetch, postDelete } from '../features/posts/actions'
 import { logout } from '../features/auth/actions'
 import type { Post } from '../api/posts'
 
@@ -33,6 +33,12 @@ export function PostsPage() {
     dispatch(logout())
   }
 
+  const handleDelete = (postId: number) => {
+    if (window.confirm('Удалить этот пост?')) {
+      dispatch(postDelete(postId))
+    }
+  }
+
   const totalPages = Math.max(1, pagination.totalPages)
   const hasPrev = currentPage > 1
   const hasNext = currentPage < totalPages
@@ -41,9 +47,12 @@ export function PostsPage() {
     <div style={{ padding: 16, maxWidth: 800 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <h2>Посты</h2>
-        <button type="button" onClick={handleLogout}>
-          Выйти
-        </button>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <Link to="/posts/add">Добавить пост</Link>
+          <button type="button" onClick={handleLogout}>
+            Выйти
+          </button>
+        </div>
       </div>
 
       {status === 'loading' && <p>Загрузка...</p>}
@@ -68,7 +77,9 @@ export function PostsPage() {
                   marginBottom: 12,
                 }}
               >
-                <h3 style={{ margin: '0 0 8px' }}>{post.title}</h3>
+                <h3 style={{ margin: '0 0 8px' }}>
+                  <Link to={`/posts/edit/${post.id}`}>{post.title}</Link>
+                </h3>
                 <p style={{ margin: '0 0 4px', fontSize: 14, color: '#888' }}>
                   {post.authorName} · {formatDate(post.updatedAt)}
                 </p>
@@ -84,6 +95,10 @@ export function PostsPage() {
                     style={{ maxWidth: 200, marginTop: 8, borderRadius: 4 }}
                   />
                 )}
+                <div style={{ marginTop: 8 }}>
+                  <Link to={`/posts/edit/${post.id}`} style={{ marginRight: 12 }}>Редактировать</Link>
+                  <button type="button" onClick={() => handleDelete(post.id)}>Удалить</button>
+                </div>
               </li>
             ))}
           </ul>
