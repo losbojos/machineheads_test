@@ -5,6 +5,7 @@ import type { History } from 'history'
 import { authReducer } from '../features/auth/reducer'
 import { postsReducer } from '../features/posts/reducer'
 import { authorsReducer } from '../features/authors/reducer'
+import { tagsReducer } from '../features/tags/reducer'
 
 export const createRootReducer = (history: History) =>
   combineReducers({
@@ -12,6 +13,7 @@ export const createRootReducer = (history: History) =>
     auth: authReducer,
     posts: postsReducer,
     authors: authorsReducer,
+    tags: tagsReducer,
   })
 
 export type RootState = ReturnType<ReturnType<typeof createRootReducer>>

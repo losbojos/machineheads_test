@@ -8,6 +8,8 @@ const POST_PATHS_FOLLOW_REDIRECTS = [
   '/api/manage/posts/edit/', '/api/manage/posts/edit',
   '/api/manage/authors/add/', '/api/manage/authors/add',
   '/api/manage/authors/edit/', '/api/manage/authors/edit',
+  '/api/manage/tags/add/', '/api/manage/tags/add',
+  '/api/manage/tags/edit/', '/api/manage/tags/edit',
 ]
 
 /**

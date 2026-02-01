@@ -1,20 +1,16 @@
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
-import { Layout, Card, List, Button, Space, Typography, Image, Modal } from 'antd'
+import { Layout, Card, List, Button, Space, Typography, Modal } from 'antd'
 import { PlusOutlined, LogoutOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons'
 
 import type { RootState } from '../app/rootReducer'
-import { authorsFetch, authorDelete } from '../features/authors/actions'
+import { tagsFetch, tagDelete } from '../features/tags/actions'
 import { logout } from '../features/auth/actions'
-import type { Author } from '../api/authors'
+import type { Tag } from '../api/tags'
 
 const { Header, Content } = Layout
 const { Text } = Typography
-
-function getAuthorDisplayName(a: Author): string {
-  return [a.lastName, a.name, a.secondName].filter(Boolean).join(' ').trim() || String(a.id)
-}
 
 function formatDate(iso: string) {
   try {
@@ -24,27 +20,26 @@ function formatDate(iso: string) {
   }
 }
 
-export function AuthorsPage() {
+export function TagsPage() {
   const dispatch = useDispatch()
-  const { items, status, error } = useSelector((state: RootState) => state.authors)
+  const { items, status, error } = useSelector((state: RootState) => state.tags)
 
   useEffect(() => {
-    dispatch(authorsFetch())
+    dispatch(tagsFetch())
   }, [dispatch])
 
   const handleLogout = () => {
     dispatch(logout())
   }
 
-  const handleDelete = (author: Author) => {
-    const name = getAuthorDisplayName(author)
+  const handleDelete = (tag: Tag) => {
     Modal.confirm({
-      title: 'Удалить автора?',
-      content: `Автор «${name}» будет удалён.`,
+      title: 'Удалить тег?',
+      content: `Тег «${tag.name}» будет удалён.`,
       okText: 'Удалить',
       okType: 'danger',
       cancelText: 'Отмена',
-      onOk: () => dispatch(authorDelete(author.id)),
+      onOk: () => dispatch(tagDelete(tag.id)),
     })
   }
 
@@ -67,13 +62,13 @@ export function AuthorsPage() {
           <Link to="/posts">
             <Text style={{ color: 'rgba(255,255,255,0.65)', fontSize: 16 }}>Посты</Text>
           </Link>
-          <Text style={{ color: '#69c0ff', fontSize: 18, fontWeight: 600 }}>Авторы</Text>
-          <Link to="/tags">
-            <Text style={{ color: 'rgba(255,255,255,0.65)', fontSize: 16 }}>Теги</Text>
+          <Link to="/authors">
+            <Text style={{ color: 'rgba(255,255,255,0.65)', fontSize: 16 }}>Авторы</Text>
           </Link>
+          <Text style={{ color: '#69c0ff', fontSize: 18, fontWeight: 600 }}>Теги</Text>
         </Space>
         <Space size="small" wrap>
-          <Link to="/authors/add">
+          <Link to="/tags/add">
             <Button type="primary" icon={<PlusOutlined />} size="small">
               Добавить
             </Button>
@@ -97,7 +92,7 @@ export function AuthorsPage() {
 
         {status === 'success' && items.length === 0 && (
           <Card>
-            <Text>Нет авторов</Text>
+            <Text>Нет тегов</Text>
           </Card>
         )}
 
@@ -105,11 +100,11 @@ export function AuthorsPage() {
           <List
             itemLayout="horizontal"
             dataSource={items}
-            renderItem={(author: Author) => (
+            renderItem={(tag: Tag) => (
               <List.Item
-                key={author.id}
+                key={tag.id}
                 actions={[
-                  <Link key="edit" to={`/authors/edit/${author.id}`}>
+                  <Link key="edit" to={`/tags/edit/${tag.id}`}>
                     <Button type="link" icon={<EditOutlined />} size="small">
                       Редактировать
                     </Button>
@@ -120,47 +115,26 @@ export function AuthorsPage() {
                     danger
                     icon={<DeleteOutlined />}
                     size="small"
-                    onClick={() => handleDelete(author)}
+                    onClick={() => handleDelete(tag)}
                   >
                     Удалить
                   </Button>,
                 ]}
               >
                 <List.Item.Meta
-                  avatar={
-                    author.avatar?.url ? (
-                      <Image
-                        src={author.avatar.url}
-                        alt={author.avatar.name}
-                        width={48}
-                        height={48}
-                        style={{ borderRadius: 8, objectFit: 'cover' }}
-                      />
-                    ) : (
-                      <div
-                        style={{
-                          width: 48,
-                          height: 48,
-                          borderRadius: 8,
-                          background: '#f0f0f0',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}
-                      >
-                        <Text type="secondary">—</Text>
-                      </div>
-                    )
-                  }
                   title={
-                    <Link to={`/authors/edit/${author.id}`}>
-                      {getAuthorDisplayName(author)}
+                    <Link to={`/tags/edit/${tag.id}`}>
+                      {tag.name}
                     </Link>
                   }
                   description={
-                    <Text type="secondary">
-                      Обновлён: {formatDate(author.updatedAt)}
-                    </Text>
+                    <Space>
+                      <Text type="secondary">код: {tag.code}</Text>
+                      <Text type="secondary">·</Text>
+                      <Text type="secondary">сорт: {tag.sort}</Text>
+                      <Text type="secondary">·</Text>
+                      <Text type="secondary">обновлён: {formatDate(tag.updatedAt)}</Text>
+                    </Space>
                   }
                 />
               </List.Item>

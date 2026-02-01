@@ -77,6 +77,9 @@ export function PostsPage() {
           <Link to="/authors">
             <Text style={{ color: 'rgba(255,255,255,0.65)', fontSize: 16 }}>Авторы</Text>
           </Link>
+          <Link to="/tags">
+            <Text style={{ color: 'rgba(255,255,255,0.65)', fontSize: 16 }}>Теги</Text>
+          </Link>
         </Space>
         <Space size="small" wrap>
           <Link to="/posts/add">

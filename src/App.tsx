@@ -26,6 +26,15 @@ const AddAuthorPage = lazy(() =>
 const EditAuthorPage = lazy(() =>
   import('./pages/EditAuthorPage.tsx').then((m) => ({ default: m.EditAuthorPage })),
 )
+const TagsPage = lazy(() =>
+  import('./pages/TagsPage.tsx').then((m) => ({ default: m.TagsPage })),
+)
+const AddTagPage = lazy(() =>
+  import('./pages/AddTagPage.tsx').then((m) => ({ default: m.AddTagPage })),
+)
+const EditTagPage = lazy(() =>
+  import('./pages/EditTagPage.tsx').then((m) => ({ default: m.EditTagPage })),
+)
 
 const { Content } = Layout
 
@@ -50,6 +59,9 @@ export default function App() {
             <PrivateRoute path="/authors/add" component={AddAuthorPage} />
             <PrivateRoute path="/authors/edit/:id" component={EditAuthorPage} />
             <PrivateRoute path="/authors" component={AuthorsPage} exact />
+            <PrivateRoute path="/tags/add" component={AddTagPage} />
+            <PrivateRoute path="/tags/edit/:id" component={EditTagPage} />
+            <PrivateRoute path="/tags" component={TagsPage} exact />
             <Redirect to="/login" />
           </Switch>
         </Suspense>
