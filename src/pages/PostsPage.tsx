@@ -1,11 +1,16 @@
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useHistory } from 'react-router-dom'
+import { Layout, Card, List, Button, Pagination, Space, Typography, Image, Modal } from 'antd'
+import { PlusOutlined, LogoutOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons'
 
 import type { RootState } from '../app/rootReducer'
 import { postsFetch, postDelete } from '../features/posts/actions'
 import { logout } from '../features/auth/actions'
 import type { Post } from '../api/posts'
+
+const { Header, Content } = Layout
+const { Text } = Typography
 
 function formatDate(iso: string) {
   try {
@@ -17,6 +22,7 @@ function formatDate(iso: string) {
 
 export function PostsPage() {
   const dispatch = useDispatch()
+  const history = useHistory()
   const location = useLocation()
   const { items, pagination, status, error } = useSelector(
     (state: RootState) => state.posts,
@@ -33,99 +39,135 @@ export function PostsPage() {
     dispatch(logout())
   }
 
-  const handleDelete = (postId: number) => {
-    if (window.confirm('Удалить этот пост?')) {
-      dispatch(postDelete(postId))
-    }
+  const handleDelete = (post: Post) => {
+    Modal.confirm({
+      title: 'Удалить пост?',
+      content: `Пост «${post.title}» будет удалён.`,
+      okText: 'Удалить',
+      okType: 'danger',
+      cancelText: 'Отмена',
+      onOk: () => dispatch(postDelete(post.id)),
+    })
+  }
+
+  const handlePageChange = (pageNum: number) => {
+    history.push(`/posts?page=${pageNum}`)
   }
 
   const totalPages = Math.max(1, pagination.totalPages)
-  const hasPrev = currentPage > 1
-  const hasNext = currentPage < totalPages
+  const postWord = pagination.total === 1 ? 'пост' : pagination.total < 5 ? 'поста' : 'постов'
 
   return (
-    <div style={{ padding: 16, maxWidth: 800 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <h2>Посты</h2>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <Link to="/posts/add">Добавить пост</Link>
-          <button type="button" onClick={handleLogout}>
+    <Layout>
+      <Header
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          background: '#001529',
+          padding: '0 24px',
+        }}
+      >
+        <Text style={{ color: '#fff', fontSize: 18 }}>Посты</Text>
+        <Space>
+          <Link to="/posts/add">
+            <Button type="primary" icon={<PlusOutlined />}>
+              Добавить пост
+            </Button>
+          </Link>
+          <Button icon={<LogoutOutlined />} onClick={handleLogout}>
             Выйти
-          </button>
-        </div>
-      </div>
+          </Button>
+        </Space>
+      </Header>
 
-      {status === 'loading' && <p>Загрузка...</p>}
-      {status === 'error' && error && (
-        <p style={{ color: 'red', marginBottom: 16 }}>{error}</p>
-      )}
+      <Content style={{ padding: 24, maxWidth: 900, margin: '0 auto', width: '100%' }}>
+        {status === 'loading' && (
+          <Card loading style={{ minHeight: 200 }} />
+        )}
 
-      {status === 'success' && items.length === 0 && (
-        <p>Нет постов</p>
-      )}
+        {status === 'error' && error && (
+          <Card>
+            <Text type="danger">{error}</Text>
+          </Card>
+        )}
 
-      {status === 'success' && items.length > 0 && (
-        <>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-            {items.map((post: Post) => (
-              <li
-                key={post.id}
-                style={{
-                  border: '1px solid #444',
-                  borderRadius: 8,
-                  padding: 12,
-                  marginBottom: 12,
-                }}
-              >
-                <h3 style={{ margin: '0 0 8px' }}>
-                  <Link to={`/posts/edit/${post.id}`}>{post.title}</Link>
-                </h3>
-                <p style={{ margin: '0 0 4px', fontSize: 14, color: '#888' }}>
-                  {post.authorName} · {formatDate(post.updatedAt)}
-                </p>
-                {post.tagNames.length > 0 && (
-                  <p style={{ margin: '0 0 4px', fontSize: 12 }}>
-                    {post.tagNames.join(', ')}
-                  </p>
-                )}
-                {post.previewPicture?.url && (
-                  <img
-                    src={post.previewPicture.url}
-                    alt={post.previewPicture.name}
-                    style={{ maxWidth: 200, marginTop: 8, borderRadius: 4 }}
+        {status === 'success' && items.length === 0 && (
+          <Card>
+            <Text>Нет постов</Text>
+          </Card>
+        )}
+
+        {status === 'success' && items.length > 0 && (
+          <>
+            <List
+              itemLayout="vertical"
+              dataSource={items}
+              renderItem={(post) => (
+                <List.Item
+                  key={post.id}
+                  actions={[
+                    <Link key="edit" to={`/posts/edit/${post.id}`}>
+                      <Button type="link" icon={<EditOutlined />} size="small">
+                        Редактировать
+                      </Button>
+                    </Link>,
+                    <Button
+                      key="delete"
+                      type="link"
+                      danger
+                      icon={<DeleteOutlined />}
+                      size="small"
+                      onClick={() => handleDelete(post)}
+                    >
+                      Удалить
+                    </Button>,
+                  ]}
+                >
+                  <List.Item.Meta
+                    title={
+                      <Link to={`/posts/edit/${post.id}`}>
+                        {post.title}
+                      </Link>
+                    }
+                    description={
+                      <Space direction="vertical" size={0}>
+                        <Text type="secondary">
+                          {post.authorName} · {formatDate(post.updatedAt)}
+                        </Text>
+                        {post.tagNames.length > 0 && (
+                          <Text type="secondary" style={{ fontSize: 12 }}>
+                            {post.tagNames.join(', ')}
+                          </Text>
+                        )}
+                      </Space>
+                    }
                   />
-                )}
-                <div style={{ marginTop: 8 }}>
-                  <Link to={`/posts/edit/${post.id}`} style={{ marginRight: 12 }}>Редактировать</Link>
-                  <button type="button" onClick={() => handleDelete(post.id)}>Удалить</button>
-                </div>
-              </li>
-            ))}
-          </ul>
+                  {post.previewPicture?.url && (
+                    <Image
+                      src={post.previewPicture.url}
+                      alt={post.previewPicture.name}
+                      width={200}
+                      style={{ borderRadius: 8, marginTop: 8 }}
+                    />
+                  )}
+                </List.Item>
+              )}
+            />
 
-          <nav style={{ marginTop: 24, display: 'flex', gap: 8, alignItems: 'center' }}>
-            {hasPrev && (
-              <Link
-                to={`/posts?page=${currentPage - 1}`}
-                style={{ padding: '4px 12px', border: '1px solid #646cff', borderRadius: 4 }}
-              >
-                ← Назад
-              </Link>
-            )}
-            <span>
-              Страница {currentPage} из {totalPages} · всего {pagination.total} {pagination.total === 1 ? 'пост' : pagination.total < 5 ? 'поста' : 'постов'}
-            </span>
-            {hasNext && (
-              <Link
-                to={`/posts?page=${currentPage + 1}`}
-                style={{ padding: '4px 12px', border: '1px solid #646cff', borderRadius: 4 }}
-              >
-                Вперёд →
-              </Link>
-            )}
-          </nav>
-        </>
-      )}
-    </div>
+            <div style={{ marginTop: 24, textAlign: 'center' }}>
+              <Pagination
+                current={currentPage}
+                total={pagination.total}
+                pageSize={pagination.limit}
+                showSizeChanger={false}
+                showTotal={(total) => `Страница ${currentPage} из ${totalPages} · всего ${total} ${postWord}`}
+                onChange={handlePageChange}
+              />
+            </div>
+          </>
+        )}
+      </Content>
+    </Layout>
   )
 }

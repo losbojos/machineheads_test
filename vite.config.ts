@@ -5,6 +5,9 @@ import { authProxyPlugin } from './vite-plugins/authProxy'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [authProxyPlugin(), react()],
+  optimizeDeps: {
+    include: ['antd', '@ant-design/icons'],
+  },
   server: {
     proxy: {
       '/api': {

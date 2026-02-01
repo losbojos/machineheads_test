@@ -1,4 +1,4 @@
-import type { UnknownAction } from 'redux-saga'
+import type { AnyAction } from 'redux-saga'
 import type { CreatePostParams } from '../../api/posts'
 
 export const POSTS_FETCH = 'posts/FETCH' as const
@@ -17,73 +17,73 @@ export const POST_UPDATE_FAILURE = 'posts/UPDATE_FAILURE' as const
 export const POST_EDIT_RESET = 'posts/EDIT_RESET' as const
 export const POST_DELETE = 'posts/DELETE' as const
 
-export interface PostsFetchAction extends UnknownAction {
+export interface PostsFetchAction extends AnyAction {
   type: typeof POSTS_FETCH
   payload: { page?: number; limit?: number }
 }
 
-export interface PostsFetchSuccessAction extends UnknownAction {
+export interface PostsFetchSuccessAction extends AnyAction {
   type: typeof POSTS_FETCH_SUCCESS
   payload: { items: import('../../api/posts').Post[]; pagination: import('../../api/posts').PaginationInfo }
 }
 
-export interface PostsFetchFailureAction extends UnknownAction {
+export interface PostsFetchFailureAction extends AnyAction {
   type: typeof POSTS_FETCH_FAILURE
   payload: { error: string }
 }
 
-export interface PostCreateAction extends UnknownAction {
+export interface PostCreateAction extends AnyAction {
   type: typeof POST_CREATE
   payload: CreatePostParams
 }
 
-export interface PostCreateSuccessAction extends UnknownAction {
+export interface PostCreateSuccessAction extends AnyAction {
   type: typeof POST_CREATE_SUCCESS
 }
 
-export interface PostCreateFailureAction extends UnknownAction {
+export interface PostCreateFailureAction extends AnyAction {
   type: typeof POST_CREATE_FAILURE
   payload: { error: string; validationErrors?: { field: string; message: string }[] }
 }
 
-export interface PostCreateResetAction extends UnknownAction {
+export interface PostCreateResetAction extends AnyAction {
   type: typeof POST_CREATE_RESET
 }
 
-export interface PostFetchOneAction extends UnknownAction {
+export interface PostFetchOneAction extends AnyAction {
   type: typeof POST_FETCH_ONE
   payload: { id: number }
 }
 
-export interface PostFetchOneSuccessAction extends UnknownAction {
+export interface PostFetchOneSuccessAction extends AnyAction {
   type: typeof POST_FETCH_ONE_SUCCESS
   payload: { post: import('../../api/posts').PostDetail }
 }
 
-export interface PostFetchOneFailureAction extends UnknownAction {
+export interface PostFetchOneFailureAction extends AnyAction {
   type: typeof POST_FETCH_ONE_FAILURE
   payload: { error: string }
 }
 
-export interface PostUpdateAction extends UnknownAction {
+export interface PostUpdateAction extends AnyAction {
   type: typeof POST_UPDATE
   payload: { id: number } & CreatePostParams
 }
 
-export interface PostUpdateSuccessAction extends UnknownAction {
+export interface PostUpdateSuccessAction extends AnyAction {
   type: typeof POST_UPDATE_SUCCESS
 }
 
-export interface PostUpdateFailureAction extends UnknownAction {
+export interface PostUpdateFailureAction extends AnyAction {
   type: typeof POST_UPDATE_FAILURE
   payload: { error: string; validationErrors?: { field: string; message: string }[] }
 }
 
-export interface PostEditResetAction extends UnknownAction {
+export interface PostEditResetAction extends AnyAction {
   type: typeof POST_EDIT_RESET
 }
 
-export interface PostDeleteAction extends UnknownAction {
+export interface PostDeleteAction extends AnyAction {
   type: typeof POST_DELETE
   payload: { id: number; page?: number; limit?: number }
 }

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, useParams } from 'react-router-dom'
+import { Card, Form, Input, Select, Checkbox, Button, Space, Typography, Image, Spin, message } from 'antd'
+import { ArrowLeftOutlined } from '@ant-design/icons'
 
 import type { RootState } from '../app/rootReducer'
 import {
@@ -12,6 +14,9 @@ import { fetchAuthors } from '../api/authors'
 import { fetchTags } from '../api/tags'
 import type { Author } from '../api/authors'
 import type { Tag } from '../api/tags'
+
+const { TextArea } = Input
+const { Text } = Typography
 
 function getFieldError(
   field: string,
@@ -83,10 +88,14 @@ export function EditPostPage() {
     }
   }, [editPost, formReady])
 
-  const handleTagToggle = (tagId: number) => {
-    setTagIds((prev) =>
-      prev.includes(tagId) ? prev.filter((id) => id !== tagId) : [...prev, tagId],
-    )
+  useEffect(() => {
+    if (createError || editError) {
+      message.error(createError || editError)
+    }
+  }, [createError, editError])
+
+  const handleTagChange = (checkedIds: number[]) => {
+    setTagIds(checkedIds)
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -114,17 +123,29 @@ export function EditPostPage() {
   if (Number.isNaN(postId) || postId <= 0) {
     return (
       <div style={{ padding: 16 }}>
-        <p>Неверный ID поста</p>
-        <Link to="/posts">← К списку постов</Link>
+        <Text type="danger">Неверный ID поста</Text>
+        <div style={{ marginTop: 8 }}>
+          <Link to="/posts">
+            <Button type="link" icon={<ArrowLeftOutlined />}>
+              К списку постов
+            </Button>
+          </Link>
+        </div>
       </div>
     )
   }
 
   if (editStatus === 'loading') {
     return (
-      <div style={{ padding: 16 }}>
-        <p>Загрузка...</p>
-        <Link to="/posts">← К списку постов</Link>
+      <div style={{ padding: 48, textAlign: 'center' }}>
+        <Spin size="large" />
+        <div style={{ marginTop: 16 }}>
+          <Link to="/posts">
+            <Button type="link" icon={<ArrowLeftOutlined />}>
+              К списку постов
+            </Button>
+          </Link>
+        </div>
       </div>
     )
   }
@@ -132,138 +153,145 @@ export function EditPostPage() {
   if (editStatus === 'error' && !editPost) {
     return (
       <div style={{ padding: 16 }}>
-        <p style={{ color: 'red' }}>{editError}</p>
-        <Link to="/posts">← К списку постов</Link>
+        <Text type="danger">{editError}</Text>
+        <div style={{ marginTop: 8 }}>
+          <Link to="/posts">
+            <Button type="link" icon={<ArrowLeftOutlined />}>
+              К списку постов
+            </Button>
+          </Link>
+        </div>
       </div>
     )
   }
 
   return (
-    <div style={{ padding: 16, maxWidth: 500 }}>
-      <h2>Редактировать пост</h2>
-      <p>
-        <Link to="/posts">← К списку постов</Link>
-      </p>
-
-      {(createError || editError) && (
-        <p style={{ color: 'red', marginBottom: 16 }}>{createError || editError}</p>
-      )}
-
-      {authorsError && (
-        <p style={{ color: 'orange', marginBottom: 16 }}>{authorsError}</p>
-      )}
-      {tagsError && (
-        <p style={{ color: 'orange', marginBottom: 16 }}>{tagsError}</p>
-      )}
+    <div style={{ maxWidth: 560, margin: '0 auto' }}>
+      <Space style={{ marginBottom: 16 }}>
+        <Link to="/posts">
+          <Button type="link" icon={<ArrowLeftOutlined />}>
+            К списку постов
+          </Button>
+        </Link>
+      </Space>
 
       {editPost && (
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: 12 }}>
-            <label style={{ display: 'block', marginBottom: 4 }}>
-              Код (code) *
-              <input
-                type="text"
+        <Card title="Редактировать пост">
+          {(authorsError || tagsError) && (
+            <div style={{ marginBottom: 16 }}>
+              {authorsError && <Text type="warning">{authorsError}</Text>}
+              {tagsError && <Text type="warning">{tagsError}</Text>}
+            </div>
+          )}
+
+          <Form layout="vertical" onFinish={handleSubmit}>
+            <Form.Item
+              label="Код (code)"
+              required
+              validateStatus={codeError ? 'error' : undefined}
+              help={codeError}
+            >
+              <Input
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
-                style={{ width: '100%', padding: 6, marginTop: 4 }}
+                placeholder="Уникальный код поста"
               />
-            </label>
-            {codeError && <span style={{ color: 'red', fontSize: 12 }}>{codeError}</span>}
-          </div>
+            </Form.Item>
 
-          <div style={{ marginBottom: 12 }}>
-            <label style={{ display: 'block', marginBottom: 4 }}>
-              Заголовок *
-              <input
-                type="text"
+            <Form.Item
+              label="Заголовок"
+              required
+              validateStatus={titleError ? 'error' : undefined}
+              help={titleError}
+            >
+              <Input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                style={{ width: '100%', padding: 6, marginTop: 4 }}
+                placeholder="Заголовок поста"
               />
-            </label>
-            {titleError && <span style={{ color: 'red', fontSize: 12 }}>{titleError}</span>}
-          </div>
+            </Form.Item>
 
-          <div style={{ marginBottom: 12 }}>
-            <label style={{ display: 'block', marginBottom: 4 }}>
-              Автор *
-              <select
-                value={authorId}
-                onChange={(e) => setAuthorId(e.target.value ? Number(e.target.value) : '')}
-                style={{ width: '100%', padding: 6, marginTop: 4 }}
-              >
-                <option value="">— Выберите —</option>
-                {authors.map((a) => (
-                  <option key={a.id} value={a.id}>
-                    {getAuthorDisplayName(a)}
-                  </option>
-                ))}
-              </select>
-            </label>
-            {authorIdError && <span style={{ color: 'red', fontSize: 12 }}>{authorIdError}</span>}
-          </div>
+            <Form.Item
+              label="Автор"
+              required
+              validateStatus={authorIdError ? 'error' : undefined}
+              help={authorIdError}
+            >
+              <Select
+                placeholder="Выберите автора"
+                value={authorId || undefined}
+                onChange={(v) => setAuthorId(v ?? '')}
+                options={authors.map((a) => ({
+                  label: getAuthorDisplayName(a),
+                  value: a.id,
+                }))}
+                allowClear
+              />
+            </Form.Item>
 
-          <div style={{ marginBottom: 12 }}>
-            <label style={{ display: 'block', marginBottom: 4 }}>
-              Теги
-              <div style={{ marginTop: 4, display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                {tags.map((t) => (
-                  <label key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <input
-                      type="checkbox"
-                      checked={tagIds.includes(t.id)}
-                      onChange={() => handleTagToggle(t.id)}
-                    />
-                    {t.name}
-                  </label>
-                ))}
-              </div>
-            </label>
-            {tagIdsError && <span style={{ color: 'red', fontSize: 12 }}>{tagIdsError}</span>}
-          </div>
+            <Form.Item
+              label="Теги"
+              validateStatus={tagIdsError ? 'error' : undefined}
+              help={tagIdsError}
+            >
+              <Checkbox.Group
+                value={tagIds}
+                onChange={handleTagChange as (v: unknown) => void}
+                options={tags.map((t) => ({ label: t.name, value: t.id }))}
+              />
+            </Form.Item>
 
-          <div style={{ marginBottom: 12 }}>
-            <label style={{ display: 'block', marginBottom: 4 }}>
-              Текст *
-              <textarea
+            <Form.Item
+              label="Текст"
+              required
+              validateStatus={textError ? 'error' : undefined}
+              help={textError}
+            >
+              <TextArea
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 rows={5}
-                style={{ width: '100%', padding: 6, marginTop: 4, resize: 'vertical' }}
+                placeholder="Текст поста"
               />
-            </label>
-            {textError && <span style={{ color: 'red', fontSize: 12 }}>{textError}</span>}
-          </div>
+            </Form.Item>
 
-          <div style={{ marginBottom: 16 }}>
-            <label style={{ display: 'block', marginBottom: 4 }}>
-              Превью-картинка
+            <Form.Item
+              label="Превью-картинка"
+              validateStatus={previewPictureError ? 'error' : undefined}
+              help={previewPictureError}
+            >
               {editPost.previewPicture?.url && (
-                <div style={{ marginTop: 4 }}>
-                  <img
+                <div style={{ marginBottom: 8 }}>
+                  <Image
                     src={editPost.previewPicture.url}
                     alt={editPost.previewPicture.name}
-                    style={{ maxWidth: 200, borderRadius: 4 }}
+                    width={200}
+                    style={{ borderRadius: 8 }}
                   />
-                  <p style={{ fontSize: 12, color: '#888' }}>Текущее изображение</p>
+                  <Text type="secondary" style={{ display: 'block', fontSize: 12 }}>
+                    Текущее изображение
+                  </Text>
                 </div>
               )}
-              <input
+              <Input
                 type="file"
                 accept="image/*"
                 onChange={(e) => setPreviewPicture(e.target.files?.[0] ?? null)}
-                style={{ marginTop: 4 }}
               />
-            </label>
-            {previewPictureError && (
-              <span style={{ color: 'red', fontSize: 12 }}>{previewPictureError}</span>
-            )}
-          </div>
+            </Form.Item>
 
-          <button type="submit" disabled={createStatus === 'loading' || !formReady}>
-            {createStatus === 'loading' ? 'Сохранение...' : 'Сохранить'}
-          </button>
-        </form>
+            <Form.Item>
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={createStatus === 'loading'}
+                disabled={!formReady}
+              >
+                {createStatus === 'loading' ? 'Сохранение...' : 'Сохранить'}
+              </Button>
+            </Form.Item>
+          </Form>
+        </Card>
       )}
     </div>
   )

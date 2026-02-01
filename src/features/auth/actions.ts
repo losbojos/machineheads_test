@@ -1,26 +1,26 @@
 import type { LoginCredentials } from './types'
-import type { UnknownAction } from 'redux'
+import type { AnyAction } from 'redux'
 
 export const LOGIN_REQUEST = 'auth/LOGIN_REQUEST' as const
 export const LOGIN_SUCCESS = 'auth/LOGIN_SUCCESS' as const
 export const LOGIN_FAILURE = 'auth/LOGIN_FAILURE' as const
 export const LOGOUT = 'auth/LOGOUT' as const
 
-export interface LoginRequestAction extends UnknownAction {
+export interface LoginRequestAction extends AnyAction {
   type: typeof LOGIN_REQUEST
   payload: LoginCredentials
 }
 
-export interface LoginSuccessAction extends UnknownAction {
+export interface LoginSuccessAction extends AnyAction {
   type: typeof LOGIN_SUCCESS
 }
 
-export interface LoginFailureAction extends UnknownAction {
+export interface LoginFailureAction extends AnyAction {
   type: typeof LOGIN_FAILURE
   payload: { error: string }
 }
 
-export interface LogoutAction extends UnknownAction {
+export interface LogoutAction extends AnyAction {
   type: typeof LOGOUT
 }
 
